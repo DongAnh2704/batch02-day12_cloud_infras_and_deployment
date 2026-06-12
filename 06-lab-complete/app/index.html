@@ -1,0 +1,968 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Production AI Agent Hub</title>
+  <!-- Google Fonts: Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Lucide Icons for premium feel -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    :root {
+      --bg-primary: #0a0f1d;
+      --bg-secondary: rgba(16, 24, 48, 0.55);
+      --bg-card: rgba(22, 34, 68, 0.35);
+      --accent: #6366f1;
+      --accent-gradient: linear-gradient(135deg, #6366f1, #a855f7);
+      --text-main: #f3f4f6;
+      --text-muted: #9ca3af;
+      --border-color: rgba(255, 255, 255, 0.08);
+      --success: #10b981;
+      --error: #ef4444;
+      --font-family: 'Plus Jakarta Sans', sans-serif;
+      --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font-family);
+      background-color: var(--bg-primary);
+      background-image: 
+        radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.15) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(168, 85, 247, 0.1) 0px, transparent 50%);
+      background-attachment: fixed;
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    header {
+      background: rgba(10, 15, 29, 0.8);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border-color);
+      padding: 1rem 2rem;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .header-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .brand-logo {
+      background: var(--accent-gradient);
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+    }
+
+    .brand-logo i {
+      color: #fff;
+    }
+
+    .brand-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      background: linear-gradient(to right, #fff, var(--text-muted));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .server-status {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(255, 255, 255, 0.04);
+      padding: 0.5rem 1rem;
+      border-radius: 99px;
+      border: 1px solid var(--border-color);
+      font-size: 0.875rem;
+      font-weight: 500;
+    }
+
+    .status-indicator {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background-color: var(--text-muted);
+      box-shadow: 0 0 8px var(--text-muted);
+    }
+
+    .status-indicator.online {
+      background-color: var(--success);
+      box-shadow: 0 0 10px var(--success);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0% { opacity: 0.5; }
+      50% { opacity: 1; }
+      100% { opacity: 0.5; }
+    }
+
+    .main-layout {
+      max-width: 1400px;
+      width: 100%;
+      margin: 2rem auto;
+      padding: 0 2rem;
+      display: grid;
+      grid-template-columns: 380px 1fr;
+      gap: 2rem;
+      flex-grow: 1;
+    }
+
+    /* Left Sidebar: Settings and Metrics */
+    .sidebar {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .card {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 20px;
+      padding: 1.5rem;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    }
+
+    .card-title {
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: #fff;
+    }
+
+    .card-title i {
+      color: var(--accent);
+      width: 18px;
+      height: 18px;
+    }
+
+    .form-group {
+      margin-bottom: 1rem;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 0.5rem;
+      letter-spacing: 0.5px;
+    }
+
+    .input-field {
+      width: 100%;
+      background: rgba(0, 0, 0, 0.2);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 0.75rem 1rem;
+      color: #fff;
+      font-family: var(--font-family);
+      font-size: 0.875rem;
+      outline: none;
+      transition: var(--transition);
+    }
+
+    .input-field:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 10px rgba(99, 102, 241, 0.2);
+    }
+
+    .btn {
+      width: 100%;
+      background: var(--accent-gradient);
+      border: none;
+      border-radius: 10px;
+      padding: 0.75rem;
+      color: #fff;
+      font-weight: 600;
+      font-family: var(--font-family);
+      font-size: 0.875rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      transition: var(--transition);
+    }
+
+    .btn:hover {
+      opacity: 0.9;
+      transform: translateY(-1px);
+      box-shadow: 0 5px 15px rgba(99, 102, 241, 0.3);
+    }
+
+    /* Metrics display */
+    .metric-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.75rem 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    }
+
+    .metric-row:last-child {
+      border-bottom: none;
+    }
+
+    .metric-label {
+      color: var(--text-muted);
+      font-size: 0.875rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .metric-value {
+      font-weight: 600;
+      font-size: 0.875rem;
+    }
+
+    .budget-bar-container {
+      margin-top: 0.5rem;
+      background: rgba(255, 255, 255, 0.04);
+      height: 8px;
+      border-radius: 99px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .budget-bar {
+      background: var(--accent-gradient);
+      width: 0%;
+      height: 100%;
+      border-radius: 99px;
+      transition: width 0.5s ease-in-out;
+    }
+
+    /* Right column: Chat Workspace */
+    .chat-container {
+      display: flex;
+      flex-direction: column;
+      height: calc(100vh - 160px);
+      min-height: 550px;
+    }
+
+    .chat-header {
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .chat-header-info h2 {
+      font-size: 1.125rem;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .chat-header-info p {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-top: 0.15rem;
+    }
+
+    .chat-messages {
+      flex-grow: 1;
+      overflow-y: auto;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    /* Scrollbar styling */
+    .chat-messages::-webkit-scrollbar {
+      width: 6px;
+    }
+    .chat-messages::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    .chat-messages::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 99px;
+    }
+    .chat-messages::-webkit-scrollbar-thumb:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    .message {
+      display: flex;
+      gap: 1rem;
+      max-width: 80%;
+      align-self: flex-start;
+      animation: messageSlideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    @keyframes messageSlideIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .message.user {
+      align-self: flex-end;
+      flex-direction: row-reverse;
+    }
+
+    .avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-weight: 700;
+      font-size: 0.875rem;
+    }
+
+    .avatar.agent-avatar {
+      background: rgba(99, 102, 241, 0.15);
+      border: 1px solid rgba(99, 102, 241, 0.3);
+      color: var(--accent);
+    }
+
+    .avatar.user-avatar {
+      background: rgba(168, 85, 247, 0.15);
+      border: 1px solid rgba(168, 85, 247, 0.3);
+      color: #a855f7;
+    }
+
+    .message-bubble {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      padding: 0.85rem 1.15rem;
+      border-radius: 16px;
+      font-size: 0.925rem;
+      line-height: 1.5;
+      color: #e5e7eb;
+    }
+
+    .message.user .message-bubble {
+      background: var(--accent-gradient);
+      border: none;
+      color: #fff;
+      box-shadow: 0 4px 15px rgba(99, 102, 241, 0.2);
+    }
+
+    .message-meta {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      margin-top: 0.4rem;
+      display: block;
+    }
+
+    .message.user .message-meta {
+      text-align: right;
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    .typing-indicator {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 0.5rem 0.75rem;
+    }
+
+    .typing-dot {
+      width: 6px;
+      height: 6px;
+      background: var(--text-muted);
+      border-radius: 50%;
+      animation: dotBounce 1.4s infinite ease-in-out both;
+    }
+
+    .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+    .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes dotBounce {
+      0%, 80%, 100% { transform: scale(0); }
+      40% { transform: scale(1); }
+    }
+
+    .chat-input-area {
+      padding: 1.5rem;
+      border-top: 1px solid var(--border-color);
+    }
+
+    .input-box {
+      display: flex;
+      gap: 0.75rem;
+      background: rgba(0, 0, 0, 0.2);
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      padding: 0.5rem;
+      transition: var(--transition);
+    }
+
+    .input-box:focus-within {
+      border-color: var(--accent);
+      box-shadow: 0 0 10px rgba(99, 102, 241, 0.15);
+    }
+
+    .chat-input {
+      flex-grow: 1;
+      background: transparent;
+      border: none;
+      outline: none;
+      padding: 0.5rem 1rem;
+      color: #fff;
+      font-family: var(--font-family);
+      font-size: 0.925rem;
+    }
+
+    .chat-input::placeholder {
+      color: var(--text-muted);
+    }
+
+    .send-btn {
+      background: var(--accent-gradient);
+      border: none;
+      border-radius: 10px;
+      width: 42px;
+      height: 42px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .send-btn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 4px 10px rgba(99, 102, 241, 0.3);
+    }
+
+    .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      gap: 1rem;
+      height: 100%;
+      color: var(--text-muted);
+      padding: 2rem;
+    }
+
+    .empty-state i {
+      width: 48px;
+      height: 48px;
+      color: var(--accent);
+      opacity: 0.5;
+    }
+
+    .empty-state h3 {
+      color: #fff;
+      font-size: 1.25rem;
+      font-weight: 700;
+    }
+
+    .empty-state p {
+      max-width: 400px;
+      font-size: 0.875rem;
+      line-height: 1.5;
+    }
+
+    /* Toast System */
+    .toast-container {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      z-index: 1000;
+    }
+
+    .toast {
+      background: rgba(16, 24, 48, 0.95);
+      border-left: 4px solid var(--accent);
+      border-top: 1px solid var(--border-color);
+      border-right: 1px solid var(--border-color);
+      border-bottom: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 1rem;
+      min-width: 300px;
+      max-width: 400px;
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+      backdrop-filter: blur(10px);
+      transform: translateX(120%);
+      transition: transform 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .toast.show {
+      transform: translateX(0);
+    }
+
+    .toast.error {
+      border-left-color: var(--error);
+    }
+
+    .toast.success {
+      border-left-color: var(--success);
+    }
+
+    .toast-content h4 {
+      font-size: 0.875rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 0.15rem;
+    }
+
+    .toast-content p {
+      font-size: 0.775rem;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+
+    @media (max-width: 900px) {
+      .main-layout {
+        grid-template-columns: 1fr;
+        padding: 0 1rem;
+        margin: 1rem auto;
+      }
+      .chat-container {
+        height: 500px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="header-container">
+      <div class="brand">
+        <div class="brand-logo">
+          <i data-lucide="bot"></i>
+        </div>
+        <div>
+          <h1 class="brand-title">Production AI Agent</h1>
+        </div>
+      </div>
+      <div class="server-status">
+        <div class="status-indicator" id="status-indicator"></div>
+        <span id="status-text">Checking server...</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="main-layout">
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <!-- API Configuration -->
+      <div class="card">
+        <h3 class="card-title"><i data-lucide="key"></i> Authentication</h3>
+        <div class="form-group">
+          <label class="form-label" for="api-key-input">API Key (X-API-Key)</label>
+          <input type="password" id="api-key-input" class="input-field" placeholder="Enter AGENT_API_KEY">
+        </div>
+        <button class="btn" id="save-key-btn"><i data-lucide="save"></i> Save Key</button>
+      </div>
+
+      <!-- Live Metrics Dashboard -->
+      <div class="card">
+        <h3 class="card-title"><i data-lucide="activity"></i> Gateway Dashboard</h3>
+        
+        <div class="metric-row">
+          <span class="metric-label"><i data-lucide="timer"></i> Uptime</span>
+          <span class="metric-value" id="metric-uptime">--</span>
+        </div>
+        <div class="metric-row">
+          <span class="metric-label"><i data-lucide="bar-chart-2"></i> Total Requests</span>
+          <span class="metric-value" id="metric-requests">--</span>
+        </div>
+        <div class="metric-row">
+          <span class="metric-label"><i data-lucide="shield-alert"></i> Error Count</span>
+          <span class="metric-value" id="metric-errors">--</span>
+        </div>
+        
+        <div class="metric-row" style="flex-direction: column; align-items: stretch; border-bottom: none; padding-bottom: 0;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+            <span class="metric-label"><i data-lucide="dollar-sign"></i> Budget Limit</span>
+            <span class="metric-value" id="metric-cost">-- / --</span>
+          </div>
+          <div class="budget-bar-container">
+            <div class="budget-bar" id="budget-bar"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Environment Information -->
+      <div class="card">
+        <h3 class="card-title"><i data-lucide="info"></i> Gateway Environment</h3>
+        <div class="metric-row">
+          <span class="metric-label">Mode</span>
+          <span class="metric-value" id="env-mode" style="text-transform: capitalize;">--</span>
+        </div>
+        <div class="metric-row">
+          <span class="metric-label">LLM Check</span>
+          <span class="metric-value" id="env-llm" style="text-transform: uppercase;">--</span>
+        </div>
+        <div class="metric-row">
+          <span class="metric-label">Version</span>
+          <span class="metric-value" id="env-version">--</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Chat Workspace -->
+    <div class="card chat-container">
+      <div class="chat-header">
+        <div class="chat-header-info">
+          <h2>Agent Console</h2>
+          <p id="chat-sub-info">Ready to answer secure API queries</p>
+        </div>
+        <div class="server-status" style="padding: 0.35rem 0.75rem;">
+          <span style="font-size: 0.75rem; color: var(--text-muted);">Model:</span>
+          <span id="model-badge" style="font-size: 0.75rem; font-weight: 700; color: #fff; margin-left: 0.25rem;">gpt-4o-mini</span>
+        </div>
+      </div>
+
+      <!-- Messages Area -->
+      <div class="chat-messages" id="chat-messages">
+        <!-- Empty State -->
+        <div class="empty-state" id="empty-state">
+          <i data-lucide="message-square-dashed"></i>
+          <h3>Begin Chat Session</h3>
+          <p>Please supply your valid X-API-Key on the left panel first. Then send a prompt below to communicate with the Production AI Agent.</p>
+        </div>
+      </div>
+
+      <!-- Input Bar -->
+      <div class="chat-input-area">
+        <form id="chat-form">
+          <div class="input-box">
+            <input type="text" class="chat-input" id="chat-input" placeholder="Type a query for the AI Agent..." autocomplete="off">
+            <button type="submit" class="send-btn" id="send-btn"><i data-lucide="send"></i></button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </main>
+
+  <div class="toast-container" id="toast-container"></div>
+
+  <script>
+    // Initialize icons
+    lucide.createIcons();
+
+    // Elements
+    const apiKeyInput = document.getElementById('api-key-input');
+    const saveKeyBtn = document.getElementById('save-key-btn');
+    const statusIndicator = document.getElementById('status-indicator');
+    const statusText = document.getElementById('status-text');
+    const chatMessages = document.getElementById('chat-messages');
+    const chatInput = document.getElementById('chat-input');
+    const chatForm = document.getElementById('chat-form');
+    const emptyState = document.getElementById('empty-state');
+    
+    // Metrics display elements
+    const mUptime = document.getElementById('metric-uptime');
+    const mRequests = document.getElementById('metric-requests');
+    const mErrors = document.getElementById('metric-errors');
+    const mCost = document.getElementById('metric-cost');
+    const budgetBar = document.getElementById('budget-bar');
+    
+    // Env display elements
+    const envMode = document.getElementById('env-mode');
+    const envLlm = document.getElementById('env-llm');
+    const envVersion = document.getElementById('env-version');
+    const modelBadge = document.getElementById('model-badge');
+
+    // Local Storage Key
+    const LS_KEY = 'production_agent_api_key';
+
+    // State
+    let apiKey = localStorage.getItem(LS_KEY) || '';
+    if (apiKey) {
+      apiKeyInput.value = apiKey;
+    }
+
+    // Save key action
+    saveKeyBtn.addEventListener('click', () => {
+      const val = apiKeyInput.value.trim();
+      localStorage.setItem(LS_KEY, val);
+      apiKey = val;
+      showToast('Authentication Saved', 'API Key updated in local storage.', 'success');
+      pollStatusAndMetrics();
+    });
+
+    // Toast function
+    function showToast(title, message, type = 'info') {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      toast.className = `toast ${type}`;
+      
+      let icon = 'info';
+      if (type === 'success') icon = 'check-circle';
+      if (type === 'error') icon = 'alert-triangle';
+
+      toast.innerHTML = `
+        <i data-lucide="${icon}" style="color: ${type === 'success' ? 'var(--success)' : type === 'error' ? 'var(--error)' : 'var(--accent)'}; width: 20px; height: 20px; flex-shrink: 0;"></i>
+        <div class="toast-content">
+          <h4>${title}</h4>
+          <p>${message}</p>
+        </div>
+      `;
+      
+      container.appendChild(toast);
+      lucide.createIcons();
+      
+      // Trigger show animation
+      setTimeout(() => toast.classList.add('show'), 10);
+      
+      // Remove after 4 seconds
+      setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 400);
+      }, 4000);
+    }
+
+    // Helper for formatting seconds
+    function formatUptime(sec) {
+      if (isNaN(sec)) return '--';
+      if (sec < 60) return `${Math.round(sec)}s`;
+      const min = Math.floor(sec / 60);
+      const s = Math.round(sec % 60);
+      if (min < 60) return `${min}m ${s}s`;
+      const hr = Math.floor(min / 60);
+      const m = min % 60;
+      return `${hr}h ${m}m`;
+    }
+
+    // Health and Metrics polling
+    async function pollStatusAndMetrics() {
+      try {
+        const response = await fetch('/health');
+        if (!response.ok) throw new Error('Health check non-ok response');
+        const data = await response.json();
+        
+        statusIndicator.className = 'status-indicator online';
+        statusText.textContent = `Online (${data.environment})`;
+        envMode.textContent = data.environment;
+        envLlm.textContent = data.checks.llm;
+        envVersion.textContent = data.version;
+
+        // Fetch metrics if API key is set
+        if (apiKey) {
+          try {
+            const mResponse = await fetch('/metrics', {
+              headers: { 'X-API-Key': apiKey }
+            });
+            if (mResponse.status === 401) {
+              mUptime.textContent = '--';
+              mRequests.textContent = '--';
+              mErrors.textContent = '--';
+              mCost.textContent = 'Auth Failed';
+              budgetBar.style.width = '0%';
+              return;
+            }
+            if (!mResponse.ok) throw new Error();
+            const mData = await mResponse.json();
+            
+            mUptime.textContent = formatUptime(mData.uptime_seconds);
+            mRequests.textContent = mData.total_requests;
+            mErrors.textContent = mData.error_count;
+            mCost.textContent = `$${mData.daily_cost_usd.toFixed(4)} / $${mData.daily_budget_usd.toFixed(1)}`;
+            
+            const pct = Math.min(mData.budget_used_pct, 100);
+            budgetBar.style.width = `${pct}%`;
+            if (pct > 90) {
+              budgetBar.style.background = 'var(--error)';
+            } else {
+              budgetBar.style.background = 'var(--accent-gradient)';
+            }
+          } catch (me) {
+            console.error('Failed to retrieve metrics', me);
+          }
+        } else {
+          mUptime.textContent = '--';
+          mRequests.textContent = '--';
+          mErrors.textContent = '--';
+          mCost.textContent = 'API Key Needed';
+          budgetBar.style.width = '0%';
+        }
+      } catch (err) {
+        statusIndicator.className = 'status-indicator';
+        statusText.textContent = 'Offline';
+        console.error('Failed checking server status', err);
+      }
+    }
+
+    // Initial check and periodic polling
+    pollStatusAndMetrics();
+    setInterval(pollStatusAndMetrics, 5000);
+
+    // Chat submit handler
+    chatForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const query = chatInput.value.trim();
+      if (!query) return;
+
+      if (!apiKey) {
+        showToast('API Key Required', 'Please set your X-API-Key in the sidebar authentication card first.', 'error');
+        return;
+      }
+
+      // Hide empty state
+      if (emptyState) {
+        emptyState.style.display = 'none';
+      }
+
+      // Append user message
+      appendMessage('user', query);
+      chatInput.value = '';
+
+      // Append typing indicator
+      const typingId = appendTypingIndicator();
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+
+      try {
+        const response = await fetch('/ask', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-API-Key': apiKey
+          },
+          body: JSON.stringify({ question: query })
+        });
+
+        // Remove typing indicator
+        removeElement(typingId);
+
+        if (response.status === 401) {
+          showToast('Unauthorized', 'The AGENT_API_KEY you configured is invalid.', 'error');
+          appendMessage('agent', 'Authentication failed! Please check your X-API-Key configured in the sidebar.', true);
+          return;
+        }
+
+        if (response.status === 503) {
+          showToast('Budget Exhausted', 'The daily API Gateway cost budget has been reached.', 'error');
+          appendMessage('agent', 'Error 503: Daily cost budget exhausted. Please increase the budget or try again tomorrow.', true);
+          return;
+        }
+
+        if (response.status === 429) {
+          showToast('Rate Limit Exceeded', 'You are sending prompts too fast.', 'error');
+          appendMessage('agent', 'Error 429: Too many requests. Rate limit exceeded. Please wait a minute and retry.', true);
+          return;
+        }
+
+        if (!response.ok) {
+          throw new Error('Server returned an error');
+        }
+
+        const data = await response.json();
+        
+        // Update model badge
+        if (data.model) {
+          modelBadge.textContent = data.model;
+        }
+        
+        appendMessage('agent', data.answer);
+        pollStatusAndMetrics(); // update stats immediately
+
+      } catch (err) {
+        removeElement(typingId);
+        showToast('Connection Error', 'Failed to communicate with AI Agent endpoint.', 'error');
+        appendMessage('agent', 'Failed to fetch agent response. Please verify server connection and try again.', true);
+      }
+
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    });
+
+    // Helper functions for messages
+    function appendMessage(sender, text, isError = false) {
+      const msgDiv = document.createElement('div');
+      msgDiv.className = `message ${sender}`;
+      
+      const avatarHtml = sender === 'user' 
+        ? `<div class="avatar user-avatar"><i data-lucide="user" style="width: 18px; height: 18px;"></i></div>`
+        : `<div class="avatar agent-avatar"><i data-lucide="cpu" style="width: 18px; height: 18px;"></i></div>`;
+        
+      const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      
+      msgDiv.innerHTML = `
+        ${avatarHtml}
+        <div class="message-bubble" style="${isError ? 'border-color: var(--error);' : ''}">
+          <p>${text}</p>
+          <span class="message-meta">${timeStr}</span>
+        </div>
+      `;
+      
+      chatMessages.appendChild(msgDiv);
+      lucide.createIcons();
+    }
+
+    // Append typing indicator
+    function appendTypingIndicator() {
+      const typingId = 'typing-' + Date.now();
+      const msgDiv = document.createElement('div');
+      msgDiv.className = 'message agent';
+      msgDiv.id = typingId;
+      
+      msgDiv.innerHTML = `
+        <div class="avatar agent-avatar"><i data-lucide="cpu" style="width: 18px; height: 18px;"></i></div>
+        <div class="message-bubble">
+          <div class="typing-indicator">
+            <div class="typing-dot"></div>
+            <div class="typing-dot"></div>
+            <div class="typing-dot"></div>
+          </div>
+        </div>
+      `;
+      
+      chatMessages.appendChild(msgDiv);
+      lucide.createIcons();
+      return typingId;
+    }
+
+    function removeElement(id) {
+      const el = document.getElementById(id);
+      if (el) el.remove();
+    }
+  </script>
+</body>
+</html>
