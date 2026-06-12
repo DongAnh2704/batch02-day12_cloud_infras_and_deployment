@@ -31,8 +31,8 @@
    - `ENTRYPOINT` defines the executable command container will always run; arguments passed during `docker run` are appended to it.
 
 ### Exercise 2.3: Image size comparison
-- **Develop (Single-stage python:3.11):** ~1.01 GB
-- **Production (Multi-stage python:3.11-slim):** ~148 MB
+- **Develop (Single-stage python:3.11):** ~1.6 GB
+- **Production (Multi-stage python:3.11-slim):** ~300 MB
 - **Difference:** ~85% reduction.
 - **Why:** The builder stage uses build tools (`gcc`, compilers) to compile wheel files, while the runtime stage starts with a clean `python:3.11-slim` base and only copies the generated site-packages and source code, completely excluding compiler tools and package caches.
 
